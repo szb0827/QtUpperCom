@@ -142,7 +142,7 @@ class MainWindow(QMainWindow):
         connect_widget = QWidget()
         connect_widget.setLayout(connect_layout)
         connect_widget.setStyleSheet("background-color: yellow;")
-        self.outer_layout.addWidget(connect_widget,1,1,1,1);
+        self.outer_layout.addWidget(connect_widget, 1, 1, 1, 1)
         # *************************************************************
         # 串口设置组
         serial_layout = QVBoxLayout()
@@ -167,12 +167,39 @@ class MainWindow(QMainWindow):
         serial_widget = QWidget()
         serial_widget.setLayout(serial_layout)
         serial_widget.setStyleSheet("background-color: white;")
-        self.outer_layout.addWidget(serial_widget, 2, 1, 1, 1);
+        self.outer_layout.addWidget(serial_widget, 2, 1, 1, 1)
         # *************************************************************
+        # 网络设置组
+        network_layout = QVBoxLayout()
+        network_text = QLabel("网络设置")
+        network_layout.addWidget(network_text)
 
+        home_address_layout = QHBoxLayout()
+        home_address_label = QLabel("主机地址：")
+        home_address_lineedit = QLineEdit("请输入主机地址")
+        home_address_layout.addWidget(home_address_label)
+        home_address_layout.addWidget(home_address_lineedit)
+
+        port_layout = QHBoxLayout()
+        port_text = QLabel("端口号：")
+        port_lineedit = QLineEdit("请输入端口号")
+        port_layout.addWidget(port_text)
+        port_layout.addWidget(port_lineedit)
+
+        network_start_button = QPushButton("开始连接")
+
+        network_layout.addLayout(home_address_layout)
+        network_layout.addLayout(port_layout)
+        network_layout.addWidget(network_start_button)
+
+        network_widget = QWidget()
+        network_widget.setLayout(network_layout)
+        network_widget.setStyleSheet("background-color: white;")
+        self.outer_layout.addWidget(network_widget, 3, 1, 1, 1)
+        # *************************************************************
         right_widget = QWidget()
         right_widget.setStyleSheet("background-color: rgb(255, 255, 255);")
-        self.outer_layout.addWidget(right_widget, 1, 2, 5, 3);
+        self.outer_layout.addWidget(right_widget, 1, 2, 5, 4);
         print("")
 
     # 文件菜单
