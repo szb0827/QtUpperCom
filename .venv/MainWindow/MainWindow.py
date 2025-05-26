@@ -141,11 +141,36 @@ class MainWindow(QMainWindow):
 
         connect_widget = QWidget()
         connect_widget.setLayout(connect_layout)
-        connect_widget.setStyleSheet("background-color: rgb(100, 100, 240);")
+        connect_widget.setStyleSheet("background-color: yellow;")
         self.outer_layout.addWidget(connect_widget,1,1,1,1);
+        # *************************************************************
+        # 串口设置组
+        serial_layout = QVBoxLayout()
+        serial_text = QLabel("串口设置")
+        serial_layout.addWidget(serial_text)
+
+        serial_list_layout = QHBoxLayout()
+        serial_list_layout.addWidget(QLabel("设备选择："))
+        serial_combobox = QComboBox()
+        serial_combobox.addItems(["COM1", "COM2", "COM3", "COM7"])
+        serial_list_layout.addWidget(serial_combobox)
+
+        baudrate_list_layout = QHBoxLayout()
+        baudrate_list_layout.addWidget(QLabel("波特率："))
+        baudrate_combobox = QComboBox()
+        baudrate_combobox.addItems(["9600", "19200", "912600"])
+        baudrate_list_layout.addWidget(baudrate_combobox)
+
+        serial_layout.addLayout(serial_list_layout)
+        serial_layout.addLayout(baudrate_list_layout)
+
+        serial_widget = QWidget()
+        serial_widget.setLayout(serial_layout)
+        serial_widget.setStyleSheet("background-color: white;")
+        self.outer_layout.addWidget(serial_widget, 2, 1, 1, 1);
+        # *************************************************************
 
         right_widget = QWidget()
-
         right_widget.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.outer_layout.addWidget(right_widget, 1, 2, 5, 3);
         print("")
