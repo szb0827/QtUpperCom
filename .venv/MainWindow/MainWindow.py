@@ -1,8 +1,8 @@
 import sys
 from PyQt5.QtWidgets import (QWidget, QApplication, QPushButton,
                              QVBoxLayout, QHBoxLayout, QLineEdit, QAction, QMenu,
-                             QMainWindow, QFileDialog, QMessageBox, QFrame, QLabel, QRadioButton, QGroupBox, QGridLayout
-                             , QComboBox, QButtonGroup )
+                             QMainWindow, QFileDialog, QMessageBox, QFrame, QLabel, QRadioButton
+                             , QComboBox, QButtonGroup, QStatusBar)
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QColor, QPalette
 import Fit as fit
@@ -25,13 +25,14 @@ class MainWindow(QMainWindow):
         # 菜单栏
         self.main_menu = self.menuBar()
         # 文件菜单
-        self.FileMenu()
+        self.file_menu()
         spec_peak = self.main_menu.addMenu("谱寻峰")
         setting_menu = self.main_menu.addMenu("设置")
         help_menu = self.main_menu.addMenu("帮助")
         self.CentralWidget()
+        self.status_menu()
 
-
+    # 窗口布局
     def CentralWidget(self):
         central_widget = QWidget(self)
         self.setCentralWidget(central_widget)
@@ -215,7 +216,7 @@ class MainWindow(QMainWindow):
         self.right_widget_layout.addWidget(self.canvas)
 
     # 文件菜单
-    def FileMenu(self):
+    def file_menu(self):
         file_menu = self.main_menu.addMenu("文件")
         open_file = QAction("打开", self)
         open_file.triggered.connect(self.open_file_dialog)
@@ -230,6 +231,14 @@ class MainWindow(QMainWindow):
         file_menu.addAction(save)
         file_menu.addSeparator()
         file_menu.addAction(exit)
+
+    def status_menu(self):
+        self.status = QStatusBar()
+        self.status_label = QLabel("****************************************************")
+
+        self.setStatusBar(self.status)
+        self.status.addPermanentWidget(self.status_label)
+        self.status.setStyleSheet("background-color: white")
 
     # 文件打开窗口
     def open_file_dialog(self):
