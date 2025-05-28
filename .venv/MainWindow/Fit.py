@@ -68,11 +68,11 @@ class dataProcess():
 
         plt.xlabel('道址', fontsize=12)
         plt.ylabel('计数', fontsize=12)
-        plt.text(450,1500,f"能量分辨率={energyResolution:.1%}",fontsize=10,bbox={'facecolor':'white','pad':5})
+        # plt.text(450,1500,f"能量分辨率={energyResolution:.1%}",fontsize=10,bbox={'facecolor':'white','pad':5})
         plt.title('能量分辨测试', fontsize=14)
         plt.legend()    # 显示图例
         plt.grid(True, linestyle='--', alpha=0.5)
-        plt.show()
+        return plt.gcf()
 
 class readFile():
     def read_lines_from(self,file, start_line, n_lines):

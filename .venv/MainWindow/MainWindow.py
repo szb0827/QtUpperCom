@@ -6,6 +6,9 @@ from PyQt5.QtWidgets import (QWidget, QApplication, QPushButton,
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QColor, QPalette
 import Fit as fit
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+
 class MainWindow(QMainWindow):
 
     def __init__(self):
@@ -44,7 +47,7 @@ class MainWindow(QMainWindow):
         self.rightFrame()
         self.right_widget = QWidget()
         self.right_widget.setLayout(self.right_widget_layout)
-        self.right_widget.setStyleSheet("background-color: yellow;")
+        # self.right_widget.setStyleSheet("background-color: yellow;")
 
         self.outer_layout.addWidget(self.left_widget, 1)
         self.outer_layout.addWidget(self.right_widget, 3)
@@ -206,7 +209,10 @@ class MainWindow(QMainWindow):
 
     def rightFrame(self):
         process = fit.dataProcess("data/fitting3.txt")
-        process.process()
+        plt_figure = process.process()
+        self.figure = plt_figure
+        self.canvas = FigureCanvas(self.figure)
+        self.right_widget_layout.addWidget(self.canvas)
 
     # 文件菜单
     def FileMenu(self):
