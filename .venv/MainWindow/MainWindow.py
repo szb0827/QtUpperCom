@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (QWidget, QApplication, QPushButton,
                              , QComboBox, QButtonGroup )
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QColor, QPalette
-
+import Fit as fit
 class MainWindow(QMainWindow):
 
     def __init__(self):
@@ -41,6 +41,7 @@ class MainWindow(QMainWindow):
         self.left_widget.setLayout(self.left_widget_layout)
 
         self.right_widget_layout = QVBoxLayout()
+        self.rightFrame()
         self.right_widget = QWidget()
         self.right_widget.setLayout(self.right_widget_layout)
         self.right_widget.setStyleSheet("background-color: yellow;")
@@ -203,6 +204,9 @@ class MainWindow(QMainWindow):
         self.left_widget_layout.addWidget(measure_start_button)
         # *************************************************************
 
+    def rightFrame(self):
+        process = fit.dataProcess("data/fitting3.txt")
+        process.process()
 
     # 文件菜单
     def FileMenu(self):
