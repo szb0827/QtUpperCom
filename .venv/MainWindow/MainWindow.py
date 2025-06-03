@@ -4,10 +4,11 @@ from PyQt5.QtWidgets import (QWidget, QApplication, QPushButton,
                              QMainWindow, QFileDialog, QMessageBox, QFrame, QLabel, QRadioButton
                              , QComboBox, QButtonGroup, QStatusBar)
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon, QColor, QPalette
+from PyQt5.QtGui import QIcon, QColor, QPalette, QPixmap, QImage
 import Fit as fit
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from PIL import Image
 
 class MainWindow(QMainWindow):
 
@@ -26,7 +27,6 @@ class MainWindow(QMainWindow):
         self.main_menu = self.menuBar()
         # 文件菜单
         self.file_menu()
-        spec_peak = self.main_menu.addMenu("谱寻峰")
         setting_menu = self.main_menu.addMenu("设置")
         help_menu = self.main_menu.addMenu("帮助")
         self.CentralWidget()
@@ -171,20 +171,6 @@ class MainWindow(QMainWindow):
         pre_lease_layout.addWidget(pre_lease_text)
         pre_lease_layout.addWidget(pre_lease_combobox)
 
-        # gain_pulse_layout = QHBoxLayout()
-        # gain_pulse_text = QLabel("获取脉冲：")
-        # self.gain_pulse_pbr = QProgressBar()
-        # self.gain_pulse_pbr.setRange(0, 100)
-        # self.gain_pulse_pbr.setValue(0)
-        # self.gain_pulse_pbr.setFormat("当前进度: %v / %m (%p%)")
-        # self.timer = QTimer(self)
-        # self.timer.timeout.connect(self.update)
-        # self.counter = 0
-        # self.gain_pulse_pbr.valueChanged.connect(self.value_changed)
-
-        # gain_pulse_layout.addWidget(gain_pulse_text)
-        # gain_pulse_layout.addWidget(self.gain_pulse_pbr)
-
         measure_time_layout = QHBoxLayout()
         measure_time_text = QLabel("测量时间(s)：")
         measure_time_edit = QLineEdit()
@@ -193,7 +179,6 @@ class MainWindow(QMainWindow):
         measure_time_layout.addWidget(measure_time_edit)
 
         measure_start_button = QPushButton("开始测量")
-        # measure_start_button.clicked.connect(self.doWork)
 
         self.left_widget_layout.addWidget(parameter_setting_text)
         self.left_widget_layout.addLayout(rise_time_layout)
@@ -203,7 +188,6 @@ class MainWindow(QMainWindow):
         self.left_widget_layout.addLayout(peak_average_layout)
         self.left_widget_layout.addLayout(peak_judge_delay_layout)
         self.left_widget_layout.addLayout(pre_lease_layout)
-        # self.left_widget_layout.addLayout(gain_pulse_layout)
         self.left_widget_layout.addLayout(measure_time_layout)
         self.left_widget_layout.addWidget(measure_start_button)
         # *************************************************************
@@ -242,32 +226,35 @@ class MainWindow(QMainWindow):
 
     # 文件打开窗口
     def open_file_dialog(self):
+
         # 弹出文件打开对话框（父窗口、对话框标题、初始路径、文件过滤器）
-        fileName, _ = QFileDialog.getOpenFileName(
+        file_path, _ = QFileDialog.getOpenFileName(
             self,
             '选择要打开的文件',
             '',  # 初始路径（空表示当前目录）
             '所有文件(*.*);;文本文件(*.txt);;图片文件(*.png *.jpg)'  # 文件过滤器
         )
-        if fileName:  # 选择了文件
-            # self.status_label.setText(f'已选择文件: {fileName}')
-            print(fileName)
+        if file_path:  # 选择了文件
+            print(file_path)
         else:  # 取消了选择
-            # self.status_label.setText('用户取消了文件选择')
             print("No file selected!")
 
     # 保存窗口
     def save_dialog(self):
-        fileName, _ = QFileDialog.getSaveFileName(
+        # 保存right_widget中的能谱图
+        pixmap = self.right_widget.grab()
+
+        file_path, _ = QFileDialog.getSaveFileName(
             self,
             '保存至',
             '',
             '所有文件(*.*);;文本文件(*.txt);;图片文件(*.png *.jpg)'
         )
-        if fileName:
-            print(fileName)
-        else:
-            print("No file saved!")
+        if file_path:
+            if pixmap.save(file_path):
+                print(f"图片已保存到：{file_path}")
+            else:
+                print("保存失败，请检查文件路径或权限")
 
     # 退出窗口
     def close_dialog(self):
