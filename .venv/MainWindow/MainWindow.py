@@ -20,7 +20,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle('上位机系统')
         self.resize(1000, 800)
         # 设置窗口logo
-        icon = QIcon("logo/logo1.jpeg")
+        icon = QIcon("../logo/logo1.jpeg")
         self.setWindowIcon(icon)
 
         # 菜单栏
