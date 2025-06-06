@@ -52,7 +52,7 @@ class MainWindow(QMainWindow):
         # self.right_widget.setStyleSheet("background-color: yellow;")
 
         self.outer_layout.addWidget(self.left_widget, 1)
-        self.outer_layout.addWidget(self.right_widget, 3)
+        self.outer_layout.addWidget(self.right_widget, 5)
 
     def leftFrame(self):
         connect_text = QLabel("连接方式")
@@ -194,14 +194,9 @@ class MainWindow(QMainWindow):
         # *************************************************************
 
     def rightFrame(self):
-        # process = fit.dataProcess("data/fitting3.txt")
-        # plt_figure = process.process()
-        # self.figure = plt_figure
-        # self.canvas = FigureCanvas(self.figure)
-        # self.right_widget_layout.addWidget(self.canvas)
-        self.test_process = test.DataProcess("data/fitting3.txt")
-        self.test_process.create_fig()
-        self.right_widget_layout.addWidget(self.test_process.canvas)
+        self.fit_process = fit.DataProcess("data/fitting3.txt")
+        self.fit_process.create_fig()
+        self.right_widget_layout.addWidget(self.fit_process.canvas)
 
     # 文件菜单
     def file_menu(self):
@@ -240,7 +235,7 @@ class MainWindow(QMainWindow):
         )
         if file_path:  # 选择了文件
             print(file_path)
-            self.test_process.update_fig(file_path)
+            self.fit_process.update_fig(file_path)
 
             # self.right_widget_layout.addWidget(test_process.canvas)
         else:  # 取消了选择

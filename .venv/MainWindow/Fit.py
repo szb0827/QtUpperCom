@@ -78,7 +78,7 @@ class DataProcess():
         # 文件指针跳转到开头
         self.data_file.seek(0)
         # 从13行开始读取length行
-        result = self.tool.read_lines_from(self.data_file, 13,length)
+        result = self.tool.read_lines_from(self.data_file, 13, length)
 
         # 除去0数据，并将字符串转换为数字
         for i in range(len(result)):
