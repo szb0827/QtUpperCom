@@ -6,9 +6,10 @@ from PyQt5.QtWidgets import (QWidget, QApplication, QPushButton,
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QColor, QPalette, QPixmap, QImage
 import Fit as fit
+import Test as test
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from PIL import Image
+
 
 class MainWindow(QMainWindow):
 
@@ -18,7 +19,7 @@ class MainWindow(QMainWindow):
 
     def initUI(self):
         self.setWindowTitle('上位机系统')
-        self.resize(1000, 800)
+        self.resize(1300, 1000)
         # 设置窗口logo
         icon = QIcon("../logo/logo1.jpeg")
         self.setWindowIcon(icon)
@@ -193,11 +194,14 @@ class MainWindow(QMainWindow):
         # *************************************************************
 
     def rightFrame(self):
-        process = fit.dataProcess("data/fitting3.txt")
-        plt_figure = process.process()
-        self.figure = plt_figure
-        self.canvas = FigureCanvas(self.figure)
-        self.right_widget_layout.addWidget(self.canvas)
+        # process = fit.dataProcess("data/fitting3.txt")
+        # plt_figure = process.process()
+        # self.figure = plt_figure
+        # self.canvas = FigureCanvas(self.figure)
+        # self.right_widget_layout.addWidget(self.canvas)
+        self.test_process = test.DataProcess("data/fitting3.txt")
+        self.test_process.create_fig()
+        self.right_widget_layout.addWidget(self.test_process.canvas)
 
     # 文件菜单
     def file_menu(self):
@@ -236,6 +240,9 @@ class MainWindow(QMainWindow):
         )
         if file_path:  # 选择了文件
             print(file_path)
+            self.test_process.update_fig(file_path)
+
+            # self.right_widget_layout.addWidget(test_process.canvas)
         else:  # 取消了选择
             print("No file selected!")
 
