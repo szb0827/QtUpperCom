@@ -19,7 +19,7 @@ class MainWindow(QMainWindow):
 
     def initUI(self):
         self.setWindowTitle('上位机系统')
-        self.resize(1300, 1000)
+        self.resize(1000, 800)
         # 设置窗口logo
         icon = QIcon("../logo/logo1.jpeg")
         self.setWindowIcon(icon)
@@ -49,7 +49,6 @@ class MainWindow(QMainWindow):
         self.rightFrame()
         self.right_widget = QWidget()
         self.right_widget.setLayout(self.right_widget_layout)
-        # self.right_widget.setStyleSheet("background-color: yellow;")
 
         self.outer_layout.addWidget(self.left_widget, 1)
         self.outer_layout.addWidget(self.right_widget, 5)
@@ -90,7 +89,6 @@ class MainWindow(QMainWindow):
         serial_button_layout.addWidget(connect_button)
 
         self.left_widget_layout.addWidget(serial_text)
-        # self.left_widget_layout.addSpacerItem(QSpacerItem(20, 40))
         self.left_widget_layout.addLayout(serial_list_layout)
         self.left_widget_layout.addLayout(baudrate_list_layout)
         self.left_widget_layout.addLayout(serial_button_layout)
@@ -113,10 +111,9 @@ class MainWindow(QMainWindow):
         port_layout.addWidget(port_lineedit)
 
         network_start_button = QPushButton("开始连接")
-        network_start_button.resize(5, 5)
+        network_start_button.clicked.connect(self.start_network)
 
         self.left_widget_layout.addWidget(network_text)
-        # self.left_widget_layout.addSpacerItem(QSpacerItem(20, 40))
         self.left_widget_layout.addLayout(port_layout)
         self.left_widget_layout.addWidget(network_start_button)
         self.left_widget_layout.addWidget(QLabel("<hr>"))
@@ -198,6 +195,9 @@ class MainWindow(QMainWindow):
         self.fit_process.create_fig()
         self.right_widget_layout.addWidget(self.fit_process.canvas)
 
+    def start_network(self):
+
+
     # 文件菜单
     def file_menu(self):
         file_menu = self.main_menu.addMenu("文件")
@@ -236,8 +236,6 @@ class MainWindow(QMainWindow):
         if file_path:  # 选择了文件
             print(file_path)
             self.fit_process.update_fig(file_path)
-
-            # self.right_widget_layout.addWidget(test_process.canvas)
         else:  # 取消了选择
             print("No file selected!")
 
