@@ -2,11 +2,13 @@ import sys
 from PyQt5.QtWidgets import (QWidget, QApplication, QPushButton,
                              QVBoxLayout, QHBoxLayout, QLineEdit, QAction, QMenu,
                              QMainWindow, QFileDialog, QMessageBox, QFrame, QLabel, QRadioButton
-                             , QComboBox, QButtonGroup, QStatusBar)
-from PyQt5.QtCore import Qt
+                             , QComboBox, QButtonGroup, QStatusBar, )
+from PyQt5.QtCore import Qt, QFile, QTextStream
 from PyQt5.QtGui import QIcon, QColor, QPalette, QPixmap, QImage
 import Fit as fit
 import Test as test
+import BackgroundRejection as bg
+import Smooth as sm
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
@@ -41,20 +43,20 @@ class MainWindow(QMainWindow):
 
         self.left_widget_layout = QVBoxLayout()
         self.left_widget_layout.setSpacing(15)
-        self.leftFrame()
+        self.left_frame()
         self.left_widget = QWidget()
         self.left_widget.setLayout(self.left_widget_layout)
 
         self.right_widget_layout = QVBoxLayout()
-        self.rightFrame()
+        self.right_frame()
         self.right_widget = QWidget()
         self.right_widget.setLayout(self.right_widget_layout)
 
         self.outer_layout.addWidget(self.left_widget, 1)
         self.outer_layout.addWidget(self.right_widget, 5)
 
-    def leftFrame(self):
-        connect_text = QLabel("连接方式")
+    def left_frame(self):
+        connect_label = QLabel("连接方式")
         connect_button_layout = QHBoxLayout()
         radio_group = QButtonGroup()
         options = ["网络连接", "串口连接"]
@@ -63,11 +65,15 @@ class MainWindow(QMainWindow):
             radio_group.addButton(radio_button)
             connect_button_layout.addWidget(radio_button)
         radio_group.setExclusive(True)
-        self.left_widget_layout.addWidget(connect_text)
+        line1 = QFrame()
+        line1.setFrameShape(QFrame.HLine)  # 水平分割线
+        line1.setFrameShadow(QFrame.Sunken)  # 设置阴影效果
+        self.left_widget_layout.addWidget(connect_label)
         self.left_widget_layout.addLayout(connect_button_layout)
-        self.left_widget_layout.addWidget(QLabel("<hr>"))
+        # self.left_widget_layout.addWidget(QLabel("<hr>"))
+        self.left_widget_layout.addWidget(line1)
         # *************************************************************
-        serial_text = QLabel("串口设置")
+        serial_label = QLabel("串口设置")
 
         serial_list_layout = QHBoxLayout()
         serial_list_layout.addWidget(QLabel("设备选择："))
@@ -88,14 +94,18 @@ class MainWindow(QMainWindow):
         serial_button_layout.addWidget(search_button)
         serial_button_layout.addWidget(connect_button)
 
-        self.left_widget_layout.addWidget(serial_text)
+        line2 = QFrame()
+        line2.setFrameShape(QFrame.HLine)  # 水平分割线
+        line2.setFrameShadow(QFrame.Sunken)  # 设置阴影效果
+
+        self.left_widget_layout.addWidget(serial_label)
         self.left_widget_layout.addLayout(serial_list_layout)
         self.left_widget_layout.addLayout(baudrate_list_layout)
         self.left_widget_layout.addLayout(serial_button_layout)
-        self.left_widget_layout.addWidget(QLabel("<hr>"))
+        # self.left_widget_layout.addWidget(QLabel("<hr>"))
+        self.left_widget_layout.addWidget(line2)
         # *************************************************************
-        network_text = QLabel("网络设置")
-
+        network_label = QLabel("网络设置")
         home_address_layout = QHBoxLayout()
         home_address_label = QLabel("主机地址：")
         home_address_lineedit = QLineEdit()
@@ -104,81 +114,87 @@ class MainWindow(QMainWindow):
         home_address_layout.addWidget(home_address_lineedit)
 
         port_layout = QHBoxLayout()
-        port_text = QLabel("端口号：")
+        port_label = QLabel("端口号：")
         port_lineedit = QLineEdit()
         port_lineedit.setPlaceholderText("请输入端口号")
-        port_layout.addWidget(port_text)
+        port_layout.addWidget(port_label)
         port_layout.addWidget(port_lineedit)
 
         network_start_button = QPushButton("开始连接")
         network_start_button.clicked.connect(self.start_network)
 
-        self.left_widget_layout.addWidget(network_text)
+        line3 = QFrame()
+        line3.setFrameShape(QFrame.HLine)  # 水平分割线
+        line3.setFrameShadow(QFrame.Sunken)  # 设置阴影效果
+
+        self.left_widget_layout.addWidget(network_label)
+        self.left_widget_layout.addLayout(home_address_layout)
         self.left_widget_layout.addLayout(port_layout)
         self.left_widget_layout.addWidget(network_start_button)
-        self.left_widget_layout.addWidget(QLabel("<hr>"))
+        # self.left_widget_layout.addWidget(QLabel("<hr>"))
+        self.left_widget_layout.addWidget(line3)
         # *************************************************************
-        parameter_setting_text = QLabel("参数设置")
+        parameter_setting_label = QLabel("参数设置")
 
         rise_time_layout = QHBoxLayout()
-        rise_time_text = QLabel("上升时间Na：")
+        rise_time_label = QLabel("上升时间Na：")
         rise_time_edit = QLineEdit()
         rise_time_edit.setPlaceholderText("请输入上升时间")
-        rise_time_layout.addWidget(rise_time_text)
+        rise_time_layout.addWidget(rise_time_label)
         rise_time_layout.addWidget(rise_time_edit)
 
         flat_top_time_layout = QHBoxLayout()
-        flat_top_time_text = QLabel("平顶时间Nb：")
+        flat_top_time_label = QLabel("平顶时间Nb：")
         flat_top_time_edit = QLineEdit()
         flat_top_time_edit.setPlaceholderText("请输入平顶时间")
-        flat_top_time_layout.addWidget(flat_top_time_text)
+        flat_top_time_layout.addWidget(flat_top_time_label)
         flat_top_time_layout.addWidget(flat_top_time_edit)
 
         time_constant_layout = QHBoxLayout()
-        time_constant_text = QLabel("时间常数d：")
+        time_constant_label = QLabel("时间常数d：")
         time_constant_edit = QLineEdit()
         time_constant_edit.setPlaceholderText("请输入时间常数")
-        time_constant_layout.addWidget(time_constant_text)
+        time_constant_layout.addWidget(time_constant_label)
         time_constant_layout.addWidget(time_constant_edit)
 
         peak_judge_layout = QHBoxLayout()
-        peak_judge_text = QLabel("峰判断阈值：")
+        peak_judge_label = QLabel("峰判断阈值：")
         peak_judge_edit = QLineEdit()
         peak_judge_edit.setPlaceholderText("请输入峰判断阈值")
-        peak_judge_layout.addWidget(peak_judge_text)
+        peak_judge_layout.addWidget(peak_judge_label)
         peak_judge_layout.addWidget(peak_judge_edit)
 
         peak_average_layout = QHBoxLayout()
-        peak_average_text = QLabel("峰均值延迟：")
+        peak_average_label = QLabel("峰均值延迟：")
         peak_average_edit = QLineEdit()
         peak_average_edit.setPlaceholderText("请输入峰均值延迟")
-        peak_average_layout.addWidget(peak_average_text)
+        peak_average_layout.addWidget(peak_average_label)
         peak_average_layout.addWidget(peak_average_edit)
 
         peak_judge_delay_layout = QHBoxLayout()
-        peak_judge_delay_text = QLabel("峰判断延迟：")
+        peak_judge_delay_label = QLabel("峰判断延迟：")
         peak_judge_delay_edit = QLineEdit()
         peak_judge_delay_edit.setPlaceholderText("请输入峰判断延迟")
-        peak_judge_delay_layout.addWidget(peak_judge_delay_text)
+        peak_judge_delay_layout.addWidget(peak_judge_delay_label)
         peak_judge_delay_layout.addWidget(peak_judge_delay_edit)
 
         pre_lease_layout = QHBoxLayout()
-        pre_lease_text = QLabel("前放类型：")
+        pre_lease_label = QLabel("前放类型：")
         pre_lease_combobox = QComboBox()
         pre_lease_combobox.addItems(["正脉冲", "负脉冲"])
-        pre_lease_layout.addWidget(pre_lease_text)
+        pre_lease_layout.addWidget(pre_lease_label)
         pre_lease_layout.addWidget(pre_lease_combobox)
 
         measure_time_layout = QHBoxLayout()
-        measure_time_text = QLabel("测量时间(s)：")
+        measure_time_label = QLabel("测量时间(s)：")
         measure_time_edit = QLineEdit()
         measure_time_edit.setPlaceholderText("请输入测量时间")
-        measure_time_layout.addWidget(measure_time_text)
+        measure_time_layout.addWidget(measure_time_label)
         measure_time_layout.addWidget(measure_time_edit)
 
         measure_start_button = QPushButton("开始测量")
 
-        self.left_widget_layout.addWidget(parameter_setting_text)
+        self.left_widget_layout.addWidget(parameter_setting_label)
         self.left_widget_layout.addLayout(rise_time_layout)
         self.left_widget_layout.addLayout(flat_top_time_layout)
         self.left_widget_layout.addLayout(time_constant_layout)
@@ -190,13 +206,11 @@ class MainWindow(QMainWindow):
         self.left_widget_layout.addWidget(measure_start_button)
         # *************************************************************
 
-    def rightFrame(self):
+    def right_frame(self):
         self.fit_process = fit.DataProcess("data/fitting3.txt")
+        self.current_file_path = "data/fitting3.txt"
         self.fit_process.create_fig()
         self.right_widget_layout.addWidget(self.fit_process.canvas)
-
-    def start_network(self):
-
 
     # 文件菜单
     def file_menu(self):
@@ -219,9 +233,37 @@ class MainWindow(QMainWindow):
         self.status = QStatusBar()
         self.status_label = QLabel("****************************************************")
 
+        file = QFile("css/Pushbutton.css")
+        if file.open(QFile.ReadOnly | QFile.Text):
+            self.stream = QTextStream(file)
+
+
+        smooth_button = QPushButton("谱光滑")
+        smooth_button.clicked.connect(self.smooth)
+        smooth_button.setStyleSheet(self.stream.readAll())
+        back_reject_button = QPushButton("本底扣除")
+        back_reject_button.clicked.connect(self.back_reject)
+
+        self.stream.seek(0)
+        back_reject_button.setStyleSheet(self.stream.readAll())
         self.setStatusBar(self.status)
-        self.status.addPermanentWidget(self.status_label)
-        self.status.setStyleSheet("background-color: white")
+        self.status.addPermanentWidget(smooth_button)
+        self.status.addPermanentWidget(back_reject_button)
+        # self.status.setStyleSheet("background-color: grey")
+
+    def start_network(self):
+        print("asd")
+
+    def smooth(self):
+        print("smooth")
+        smooth = sm.Smooth(self.current_file_path)
+        smooth.file_process()
+
+    def back_reject(self):
+        print("back_reject")
+        background_reject = bg.BackgroundRejection(self.current_file_path)
+        background_reject.file_process()
+
 
     # 文件打开窗口
     def open_file_dialog(self):
@@ -235,6 +277,7 @@ class MainWindow(QMainWindow):
         )
         if file_path:  # 选择了文件
             print(file_path)
+            self.current_file_path = file_path
             self.fit_process.update_fig(file_path)
         else:  # 取消了选择
             print("No file selected!")

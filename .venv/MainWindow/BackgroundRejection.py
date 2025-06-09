@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import pywt
 from itertools import islice
 
-class Smooth():
+class BackgroundRejection():
     def __init__(self, file_path):
         self.file_path = open(file_path, 'r')
 
@@ -28,32 +28,39 @@ class Smooth():
 
         x = np.linspace(0, len(temp), len(temp))
 
-        smoothed_signal = self.wavelet_smoothing(temp)
+        # 小波分解
+        coeffs = pywt.wavedec(temp, 'db4', level=4)
+
+        # 保留低频分量作为本底
+        background_coeffs = [coeffs[0]] + [np.zeros_like(c) for c in coeffs[1:]]
+        background_estimate = pywt.waverec(background_coeffs, 'db4')
+
+        # 扣除本底
+        net_spectrum = temp - background_estimate
 
         # 绘制结果
         plt.figure(figsize=(12, 6))
-        plt.xlim(150, 600)
-        plt.ylim(0, maxy + 20)
-
-        plt.plot(x, temp, label='Noisy Signal')
-        plt.plot(x, smoothed_signal, label='Smoothed Signal (Wavelet Transform)')
+        plt.subplot(2, 1, 1)
+        plt.plot(x, temp, label='Total Spectrum')
+        plt.plot(x, background_estimate, label='Estimated Background')
         plt.xlabel('Channel')
         plt.ylabel('Counts')
-        plt.title('Wavelet Transform Smoothing')
-        plt.gcf().canvas.manager.set_window_title("Smooth")
+        plt.title('Total Spectrum and Estimated Background')
         plt.legend()
+
+        plt.subplot(2, 1, 2)
+        plt.plot(x, net_spectrum, label='Net Spectrum')
+        plt.xlabel('Channel')
+        plt.ylabel('Counts')
+        plt.title('Net Spectrum after Background Subtraction')
+        plt.legend()
+
+        plt.gcf().canvas.manager.set_window_title("Background Rejection")
+        plt.tight_layout()
         plt.show()
 
     def read_lines_from(self, file, start_line, n_lines):
         # 跳过前 start_line-1 行，读取后续的 n_lines 行
         lines = list(islice(file, start_line - 1, start_line - 1 + n_lines))
         return [line.strip() for line in lines]
-
-    # 小波变换平滑
-    def wavelet_smoothing(self, signal, wavelet='db4', level=1):
-        coeffs = pywt.wavedec(signal, wavelet, level=level)
-        threshold = np.sqrt(2 * np.log(len(signal)))
-        coeffs[1:] = (pywt.threshold(i, value=threshold, mode='soft') for i in coeffs[1:])
-        smoothed = pywt.waverec(coeffs, wavelet)
-        return smoothed
 
